@@ -2,7 +2,7 @@ name: 🚀 Deploy to InfinityFree
 on:
   push:
     branches:
-      - main  # تأكد أن اسم فرعك في GitHub هو main
+      - main
 jobs:
   web-deploy:
     name: 🎉 Deploying Files
@@ -19,5 +19,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # المسار الرسمي المسجل في بيانات النطاق الخاصة بك
-        server-dir: ./arobcumputres-chekh-stecker.com/htdocs/
+        # جرب هذا المسار الرئيسي فهو الأكثر قبولاً في انفينيتي
+        server-dir: ./htdocs/
+        # هذا الخيار يمنع حذف ملفات النظام التي قد تسبب خطأ الصلاحيات
+        dangerous-clean-slate: false
