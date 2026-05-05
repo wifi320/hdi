@@ -20,4 +20,4 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         # هذا هو المسار الخاص بنطاقك المضاف في الحساب الجديد
-        server-dir: ./arobcmputres-chekh-stecker.com/htdocs/
+        server-dir: ./arobcumputres-chekh-stecker.com/htdocs/
