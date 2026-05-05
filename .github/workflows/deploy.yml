@@ -5,8 +5,9 @@ on:
       - main
 jobs:
   web-deploy:
-    name: 🎉 Deploying
+    name: 🎉 Deploying Files
     runs-on: ubuntu-latest
+    # السطر التالي يحل مشكلة التنبيه ويجبر النظام على استخدام Node 24
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -19,5 +20,4 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # هذا هو المسار الخاص بنطاقك المضاف في الحساب الجديد
         server-dir: ./arobcumputres-chekh-stecker.com/htdocs/
