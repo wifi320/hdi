@@ -153,6 +153,13 @@
         }
     </style>
 </head>
+<body>
+    <div class="container">
+        <div class="header-content">
+            <img src="https://i.postimg.cc/zvf2c47L/image.png" alt="Website Logo" class="logo">
+            <div class="breadcrumb">
+                </div>
+        </div>
 
         <h2>Warranty sticker validation</h2>
 
@@ -172,14 +179,22 @@
             أدخل الرقم الموجود على الملصق هنا   
         </p>
 
+        <div class="input-container">
+            <input type="text" id="numberInput" placeholder="XXXXXX">
+            <button type="submit" id="checkBtn" onclick="validateForm(event)">Check</button>
+        </div>
+
         <div id="result"></div>
-</div>
+    </div>
+
     <script>
         // --- إعدادات Supabase ---
         // بما أنك وضعت المفاتيح في GitHub Secrets، يمكنك وضعها هنا مباشرة 
         // الـ Anon Key مصمم ليكون عاماً طالما أنك تستخدمه للتحقق فقط
         const SUPABASE_URL = 'https://zihywniznqjfhczotshe.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_mGZlZxplHYI3nawbF8xH7A_bt016_e-';
+
+                // --- إعدادات Supabase النهائية ---
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -239,4 +254,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
