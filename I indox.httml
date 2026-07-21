@@ -1,0 +1,478 @@
+
+# Read the uploaded file
+with open('/mnt/agents/upload/index (15).html', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Add camera button CSS styles (before the closing </style> tag in head)
+camera_css = '''
+        /* Camera button styles */
+        .input-container {
+            border-radius: 25px 0 0 25px;
+        }
+        .btn-scan {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b1538 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            height: 100%;
+            transition: transform 0.1s;
+        }
+        .btn-scan:active {
+            transform: scale(0.95);
+        }
+        .btn-scan svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+        /* Scanner Modal */
+        .scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .scanner-modal.active {
+            display: flex;
+        }
+        .scanner-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 40px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+            min-width: 300px;
+            max-width: 90%;
+        }
+        .scanner-info-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: #666;
+            color: white;
+            border-radius: 50%;
+            font-size: 14px;
+            line-height: 24px;
+            font-style: italic;
+            font-family: Georgia, serif;
+            cursor: pointer;
+        }
+        .scanner-icon {
+            margin: 20px auto;
+            width: 100px;
+            height: 120px;
+        }
+        .scanner-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        .btn-request-camera {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #c9a84c 0%, #b8963a 100%);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3);
+        }
+        .btn-request-camera:hover {
+            background: linear-gradient(135deg, #b8963a 0%, #a68430 100%);
+        }
+        .scan-file-link {
+            display: block;
+            margin-top: 12px;
+            color: #666;
+            text-decoration: underline;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .scan-file-link:hover {
+            color: #333;
+        }
+        /* Camera view modal */
+        .camera-view-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .camera-view-modal.active {
+            display: flex;
+        }
+        .camera-view-card {
+            background: #1a1a1a;
+            border-radius: 16px;
+            overflow: hidden;
+            width: 90%;
+            max-width: 400px;
+        }
+        .camera-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+        }
+        .camera-view-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        #cameraVideo {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: #000;
+        }
+        #cameraCanvas {
+            display: none;
+        }
+        .camera-view-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px;
+            gap: 12px;
+        }
+        .capture-btn, .gallery-btn-label {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+        }
+        .capture-btn {
+            background: #c41e3a;
+        }
+        .gallery-btn-label {
+            background: #c9a84c;
+            display: inline-block;
+        }
+        /* Preview modal */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+        .preview-modal.active {
+            display: flex;
+        }
+        .preview-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            width: 90%;
+            max-width: 400px;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            font-size: 16px;
+        }
+        .preview-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        #previewImage {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            display: block;
+        }
+        .preview-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px;
+            gap: 12px;
+        }
+        .confirm-btn, .retake-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            color: white;
+        }
+        .confirm-btn {
+            background: #28a745;
+        }
+        .retake-btn {
+            background: #6c757d;
+        }
+'''
+
+# Insert camera CSS before </style>
+content = content.replace('    </style>', camera_css + '    </style>')
+
+# Add camera button HTML in input-container
+old_input = '''        <div class="input-container">
+            <input type="text" id="numberInput" placeholder="XXXXXX">
+            <button type="submit" id="checkBtn" onclick="validateForm(event)">Check</button>
+        </div>'''
+
+new_input = '''        <div class="input-container">
+            <input type="text" id="numberInput" placeholder="XXXXXX">
+            <button type="button" class="btn-scan" id="scanBtn" title="مسح QR">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+            </button>
+            <button type="submit" id="checkBtn" onclick="validateForm(event)">Check</button>
+        </div>
+
+        <!-- Scanner Modal -->
+        <div class="scanner-modal" id="scannerModal">
+            <div class="scanner-card">
+                <div class="scanner-info-icon" title="معلومات">i</div>
+                <div class="scanner-icon">
+                    <svg viewBox="0 0 100 120" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="20" y="5" width="60" height="100" rx="8"/>
+                        <rect x="26" y="18" width="48" height="74" rx="3"/>
+                        <rect x="36" y="35" width="8" height="8" rx="1"/>
+                        <rect x="56" y="35" width="8" height="8" rx="1"/>
+                        <rect x="36" y="55" width="8" height="8" rx="1"/>
+                        <rect x="56" y="55" width="8" height="8" rx="1"/>
+                        <path d="M5 85 Q5 75 15 75 L20 75 L20 95 Q20 105 10 105 L5 105 Z"/>
+                        <path d="M20 75 L20 65 Q20 55 30 55 L35 55"/>
+                        <path d="M25 75 L25 60 Q25 50 35 50"/>
+                        <path d="M30 75 L30 60 Q30 50 40 50"/>
+                        <path d="M35 75 Q45 70 50 80 L50 90"/>
+                    </svg>
+                </div>
+                <button class="btn-request-camera" id="requestBtn">Request Camera Permissions</button>
+                <label for="fileInput" class="scan-file-link">Scan an Image File</label>
+                <input type="file" id="fileInput" accept="image/*" style="display:none">
+            </div>
+        </div>
+
+        <!-- Camera View Modal -->
+        <div class="camera-view-modal" id="cameraViewModal">
+            <div class="camera-view-card">
+                <div class="camera-view-header">
+                    <span>مسح QR Code</span>
+                    <button class="camera-view-close" id="closeCamera">&times;</button>
+                </div>
+                <video id="cameraVideo" autoplay playsinline></video>
+                <canvas id="cameraCanvas"></canvas>
+                <div class="camera-view-footer">
+                    <button class="capture-btn" id="captureBtn">&#128247; التقاط</button>
+                    <label for="galleryInput" class="gallery-btn-label">&#128444; المعرض</label>
+                    <input type="file" id="galleryInput" accept="image/*" style="display:none">
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div class="preview-modal" id="previewModal">
+            <div class="preview-card">
+                <div class="preview-header">
+                    <span>معاينة الصورة</span>
+                    <button class="preview-close" id="closePreview">&times;</button>
+                </div>
+                <img id="previewImage" src="" alt="معاينة">
+                <div class="preview-footer">
+                    <button class="confirm-btn" id="confirmBtn">&#10003; تأكيد</button>
+                    <button class="retake-btn" id="retakeBtn">&#8634; إعادة</button>
+                </div>
+            </div>
+        </div>'''
+
+content = content.replace(old_input, new_input)
+
+# Add camera JavaScript before the closing </script> tag
+camera_js = '''
+        // ===== Camera Scanner Functionality =====
+        const scanBtn = document.getElementById('scanBtn');
+        const scannerModal = document.getElementById('scannerModal');
+        const requestBtn = document.getElementById('requestBtn');
+        const cameraViewModal = document.getElementById('cameraViewModal');
+        const closeCamera = document.getElementById('closeCamera');
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraCanvas = document.getElementById('cameraCanvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const galleryInput = document.getElementById('galleryInput');
+        const fileInput = document.getElementById('fileInput');
+        const previewModal = document.getElementById('previewModal');
+        const previewImage = document.getElementById('previewImage');
+        const closePreview = document.getElementById('closePreview');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+
+        let stream = null;
+
+        // 1. Open scanner modal
+        scanBtn.addEventListener('click', () => {
+            scannerModal.classList.add('active');
+        });
+
+        // Close scanner modal on outside click
+        scannerModal.addEventListener('click', (e) => {
+            if (e.target === scannerModal) {
+                scannerModal.classList.remove('active');
+            }
+        });
+
+        // 2. Request camera permissions
+        requestBtn.addEventListener('click', async () => {
+            scannerModal.classList.remove('active');
+            cameraViewModal.classList.add('active');
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                cameraVideo.srcObject = stream;
+            } catch (err) {
+                alert('لا يمكن الوصول للكاميرا: ' + err.message);
+                cameraViewModal.classList.remove('active');
+            }
+        });
+
+        // Close camera
+        closeCamera.addEventListener('click', () => {
+            stopCamera();
+            cameraViewModal.classList.remove('active');
+        });
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        // 3. Capture photo
+        captureBtn.addEventListener('click', () => {
+            cameraCanvas.width = cameraVideo.videoWidth;
+            cameraCanvas.height = cameraVideo.videoHeight;
+            const ctx = cameraCanvas.getContext('2d');
+            ctx.drawImage(cameraVideo, 0, 0);
+            
+            const imageData = cameraCanvas.toDataURL('image/png');
+            showPreview(imageData);
+            stopCamera();
+            cameraViewModal.classList.remove('active');
+        });
+
+        // File input from scanner modal
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    scannerModal.classList.remove('active');
+                    showPreview(event.target.result);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Gallery input from camera view
+        galleryInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    showPreview(event.target.result);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Show preview
+        function showPreview(imageSrc) {
+            previewImage.src = imageSrc;
+            previewModal.classList.add('active');
+        }
+
+        // Close preview
+        closePreview.addEventListener('click', () => {
+            previewModal.classList.remove('active');
+        });
+
+        // Confirm image
+        confirmBtn.addEventListener('click', () => {
+            // Here you can process the scanned image
+            // For example: extract QR code data
+            alert('تم مسح الصورة بنجاح!');
+            previewModal.classList.remove('active');
+        });
+
+        // Retake photo
+        retakeBtn.addEventListener('click', () => {
+            previewModal.classList.remove('active');
+            cameraViewModal.classList.add('active');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(s => {
+                    stream = s;
+                    cameraVideo.srcObject = stream;
+                });
+        });
+
+        // Close modals on outside click
+        cameraViewModal.addEventListener('click', (e) => {
+            if (e.target === cameraViewModal) {
+                stopCamera();
+                cameraViewModal.classList.remove('active');
+            }
+        });
+
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                previewModal.classList.remove('active');
+            }
+        });
+'''
+
+# Insert camera JS before the closing </script> tag
+content = content.replace('    </script>', camera_js + '    </script>')
+
+# Save the modified file
+output_path = '/mnt/agents/output/index_with_camera.html'
+with open(output_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("File saved successfully!")
+print(f"Original length: {len(open('/mnt/agents/upload/index (15).html', 'r', encoding='utf-8').read())}")
+print(f"New length: {len(content)}")
