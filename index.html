@@ -1,462 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warranty sticker validation</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9178907045493989" crossorigin="anonymous"></script>
-    <meta name="google-adsense-account" content="ca-pub-9178907045493989">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-            color: #333;
-            line-height: 1.6;
-            padding-bottom: 70px;
-        }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 15px;
-            background-color: #fff;
-        }
-        .header-content {
-            text-align: left;
-            margin-bottom: 30px;
-        }
-        .logo {
-            width: 100px;
-            margin-bottom: 10px;
-        }
-        .breadcrumb {
-            font-size: 0.9rem;
-            color: #777;
-            margin: 10px 0 15px 0;
-        }
-        .breadcrumb a {
-            color: #000 !important;
-            text-decoration: none;
-        }
-        .breadcrumb a:hover {
-            color: #333 !important;
-            text-decoration: underline;
-        }
-        h2 {
-            color: #2c3e50;
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin: 20px 0 40px 0;
-            letter-spacing: 1px;
-        }
-        .main-description {
-            text-align: center;
-            font-weight: normal;
-            font-size: 1rem;
-            line-height: 1.8;
-            max-width: 800px;
-            margin: 20px auto 30px auto;
-        }
-        .arabic-text {
-            font-family: 'Traditional Arabic', 'Arial Arabic', 'Simplified Arabic', sans-serif;
-            font-size: 1rem;
-            direction: rtl;
-            display: inline-block;
-        }
-        .banner {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            margin: 40px 0;
-        }
-        .input-instruction {
-            text-align: center;
-            font-weight: normal;
-            font-size: 0.9rem;
-            margin: 15px 0;
-        }
-        .input-container {
-            width: 45%;
-            max-width: 300px;
-            display: flex;
-            align-items: center;
-            border: 2px solid #cccccc;
-            border-radius: 25px 0 0 25px;
-            overflow: hidden;
-            margin: 10px auto;
-            height: 40px;
-        }
-        .input-container input {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            font-size: 0.9rem;
-            outline: none;
-            border-radius: 25px 0 0 25px;
-            text-align: left;
-            height: 100%;
-        }
-        .input-container button {
-            padding: 0 20px;
-            background-color: #a8822b;
-            color: white;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            height: 100%;
-            border-radius: 0;
-            min-width: 80px;
-        }
-        .input-container button.pressed {
-            background-color: #666 !important;
-        }
-        #result {
-            margin: 20px auto;
-            padding: 25px;
-            font-size: 1.1rem;
-            max-width: 450px;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .success { color: #28a745; font-weight: bold; }
-        .error { color: #dc3545; font-weight: bold; }
-
-        /* قسم التحذير - خلفية شفافة */
-        .warning-message {
-            color: red;
-            margin: 20px 0;
-            padding: 0;
-            text-align: center;
-            font-size: 0.9rem;
-            background-color: transparent;  /* شفاف */
-        }
-        .warning-text-bold {
-            font-weight: bold;
-            margin-bottom: 0;
-            line-height: 1.4;
-        }
-        .warning-text-normal {
-            font-weight: normal;
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-        .notice-title {
-            font-weight: bold;
-            display: block;
-        }
-        .warning-url {
-            text-decoration: underline;
-            font-weight: bold;
-            color: #000000;
-            display: block;
-            margin: 5px 0;
-        }
-        .warning-url a {
-            color: #000000;
-            text-decoration: none;
-        }
-
-        /* الحاشية السفلية (الروابط) - خلفية رمادية مثل البانر */
-        .links {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            text-align: left;
-            padding-left: 40px;
-            background-color: #f4f4f9;   /* لون البانر */
-            flex-wrap: wrap;
-        }
-        .links-section {
-            flex: 1;
-            margin-left: 15px;
-            text-align: left;
-            min-width: 160px;
-        }
-        .links-section h2 {
-            text-align: left;
-            font-size: 1.2rem;
-            margin: 0 0 8px 0;
-            color: #2c3e50;
-            letter-spacing: normal;
-        }
-        .links-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .link-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 18px;
-        }
-        .link-left {
-            text-align: left;
-            flex: 1;
-        }
-        .link-right {
-            text-align: left;
-            flex: 1;
-            padding-left: 5px;
-            margin-left: -40px;
-        }
-        .links-section a {
-            color: #333;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .links-section a:hover {
-            color: #a8822b;
-            text-decoration: underline;
-        }
-        .contact-info {
-            margin-top: 6px;
-        }
-        .contact-info p {
-            margin: 2px 0;
-            line-height: 1.2;
-            font-size: 0.9rem;
-        }
-        .left-section img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 20px;
-        }
-        .bottom-buttons {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 20px;
-            background-color: white;
-            border-top: 1px solid #ddd;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-        .bottom-buttons button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: #777;
-            padding: 5px 10px;
-            transition: color 0.3s ease;
-            margin: 0 10px;
-        }
-        .bottom-buttons button:hover {
-            color: #333;
-        }
-        .home-button {
-            margin-left: 20px;
-        }
-        .menu-button {
-            margin-right: 20px;
-        }
-        .home-icon {
-            width: 20px;
-            height: 20px;
-            fill: none;
-            stroke: #777;
-            stroke-width: 2;
-            transition: stroke 0.3s ease;
-        }
-        .home-button:hover .home-icon {
-            stroke: #333;
-        }
-        @media (max-width: 768px) {
-            .input-container { width: 70%; }
-            .links {
-                flex-direction: column;
-                padding-left: 20px;
-            }
-            .links-section {
-                margin-left: 0;
-                margin-top: 15px;
-            }
-            .link-right {
-                margin-left: 0;
-                text-align: center;
-                padding-left: 0;
-            }
-        }
-        @media (max-width: 480px) {
-            .input-container { width: 90%; }
-            .input-container button { padding: 10px 15px; }
-            body { padding-bottom: 60px; }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Check sticker – Arab Computers | حاسبات العرب</title>
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="theme-color" content="#2563eb">
+  
+<style>
+:root{--ink:#222;--muted:#666;--red:#ed1c24;--line:#e9e9e9;--footer:#f6f6f8;--gold:#b58a1e;--max:1170px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Arial,"Tahoma",sans-serif;background:#fff;line-height:1.55}.wrap{width:min(var(--max),calc(100% - 48px));margin:auto}.site-header{border-bottom:1px solid var(--line);background:#fff}.topbar{min-height:89px;display:flex;align-items:center;justify-content:flex-start;direction:ltr}.brand img{width:124px;height:auto;display:block}.nav{border-top:1px solid #f1f1f1;display:flex;justify-content:center;gap:35px;min-height:42px;align-items:center;direction:ltr}.nav a{color:#111;text-decoration:none;font-size:14px;white-space:nowrap}.nav a:hover{text-decoration:underline}.crumbs{font-size:12px;color:#222;padding:10px 0 0;direction:ltr}.crumbs a{color:#1681c4;text-decoration:none}.main{min-height:588px;text-align:center;padding:26px 16px 76px}.main h1{font-size:clamp(25px,3vw,30px);line-height:1.2;margin:0 0 8px;font-weight:700;letter-spacing:-.3px}.lead{font-size:14px;margin:0 auto 23px;direction:ltr}.lead .ar{display:block;direction:rtl}.sticker{display:block;width:min(290px,80vw);height:auto;margin:0 auto 17px;border-radius:2px}.instruction{font-size:13px;line-height:1.65;margin:0 auto 10px}.instruction .ar{display:block;direction:rtl}.checker{display:flex;direction:ltr;justify-content:center;align-items:stretch;margin:0 auto;max-width:260px;height:31px}.checker input{width:145px;border:1px solid var(--gold);border-right:0;border-radius:20px 0 0 20px;padding:0 13px;color:#777;font-size:12px;outline:none}.checker input:focus{border-color:#e49a26}.qr,.check{border:0;color:#fff;cursor:pointer}.qr{width:32px;background:var(--gold);border-radius:0 5px 5px 0;font-size:17px}.check{width:73px;background:var(--gold);margin-left:6px;border-radius:5px;font-size:12px}.qr:hover,.check:hover{background:#7b5c00}.check:disabled{opacity:.65;cursor:wait}.notice{max-width:760px;margin:34px auto 0;color:var(--red);font-weight:700;font-size:12px;line-height:1.65}.notice strong{display:block;font-size:13px}.notice a{color:#111;text-decoration:underline}.status{min-height:22px;margin:9px auto 0;font-size:12px;font-weight:700}.status.success{color:#168349}.status.error{color:var(--red)}.site-footer{background:var(--footer);padding:54px 0 22px;color:#222}.footer-grid{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:28px;direction:ltr}.footer-col{text-align:left}.footer-brand{display:flex;flex-direction:column;align-items:flex-start;text-align:left}.footer-col h3{font-size:14px;margin:0 0 14px}.footer-col a,.footer-col p{display:block;color:#222;text-decoration:none;font-size:12px;margin:4px 0}.footer-brand img{width:125px}.linkedin{margin-top:18px}.copyright{text-align:center;border-top:1px solid #ddd;margin-top:35px;padding-top:17px;font-size:11px}.top{text-align:center;display:block;color:#222;text-decoration:none;font-size:11px;margin-top:10px}@media(max-width:720px){.wrap{width:min(100% - 28px,600px)}.topbar{min-height:72px}.brand img{width:108px}.nav{gap:14px;overflow:auto;justify-content:flex-start;padding:0 4px}.nav a{font-size:12px}.main{padding-top:22px;min-height:620px}.main h1{font-size:25px}.footer-grid{grid-template-columns:repeat(2,1fr);gap:25px}.footer-brand{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;text-align:left}.footer-col{text-align:center}.footer-col h3{margin-bottom:8px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header-content">
-            <img src="https://i.postimg.cc/zvf2c47L/image.png" alt="Website Logo" class="logo">
-            <div class="breadcrumb"></div>
-        </div>
-        <h2>Warranty sticker validation</h2>
-        <p class="main-description">
-            Check if the warranty sticker on your product is genuine.<br>
-            تأكد إذا كان ملصق الضمان الموجود على منتجك هو ملصق أصلي أو مزيف
-        </p>
-        <span class="arabic-text">الشكل القديم </span>
-        <img src="https://i.postimg.cc/1XhL17mC/Screenshot-20251026-022901.jpg" alt="Banner 1" class="banner">
-        <span class="arabic-text">الشكل الجديد</span>
-        <img src="https://i.ibb.co/3m3r1TWK/Warranty-sticker-26.jpg" alt="Banner 2" class="banner">
-        <p class="input-instruction">
-            Enter the number shown on the sticker in this box<br>
-            أدخل الرقم الموجود على الملصق هنا   
-        </p>
-        <div class="input-container">
-            <input type="text" id="numberInput" placeholder="XXXXXX">
-            <button type="submit" id="checkBtn" onclick="validateForm(event)">Check</button>
-        </div>
-        <div id="result"></div>
+<header class="site-header"><div class="topbar wrap"><a class="brand" href="https://arabcomputers.com.sa/"><img src="https://arabcomputers.com.sa/wp-content/uploads/2022/04/AC-AAD-logo.png" alt="Arab Computers"></a></div></header>
+<div class="wrap crumbs"><a href="https://arabcomputers.com.sa/">Home</a> / Check sticker</div>
+<main class="main"><h1>Warranty sticker validation</h1><p class="lead">Check if the warranty sticker on your product is genuine.<span class="ar">تأكد إذا كان ملصق الضمان الموجود على منتجك هو ملصق أصلي أو مزيف</span></p><img class="sticker" src="https://arabcomputers.com.sa/wp-content/uploads/2026/01/Warranty-sticker-26.jpg" alt="Warranty sticker example"><p class="instruction">Enter the number shown on the sticker in this box:<span class="ar">أدخل الرقم الموجود على الملصق هنا</span></p><form class="checker" id="checker"><input id="serial" required autocomplete="off" placeholder="XXXXXX" aria-label="Sticker number"><button class="qr" type="button" id="qr" title="Scan QR Code" aria-label="Scan QR Code">▦</button><button class="check" type="submit">Check</button></form><div class="status" id="status" role="status" aria-live="polite"></div><section class="notice"><p>نحذر عملائنا الكرام من وجود ملصق ضمان مزور يحتوي على رمز إستجابة سريع يوجه المستخدمين لصفحة إلكترونية مزورة تشبه هذه الصفحة<br>يجب أن يكون عنوان الصفحة يتبع لعنوان موقعنا الرسمي:<a href="https://arabcomputers.com.sa/">arabcomputers.com.sa/</a></p><strong>Important Notice to Our Valued Customers:</strong><p>We would like to alert you to the presence of counterfeit warranty stickers featuring a QR code that directs users to a fraudulent website designed to imitate the official Arab Computers website.</p></section></main>
+<footer class="site-footer"><div class="wrap footer-grid"><div class="footer-col footer-brand"><img src="https://arabcomputers.com.sa/wp-content/uploads/2022/04/AC-AAD-logo-300x118.png" alt="Arab Computers"><a class="linkedin" href="https://www.linkedin.com/company/arabcomputers/">Linked in</a></div><div class="footer-col"><h3>Useful Links</h3><a href="https://arabcomputers.sa/">Home</a><a href="https://arabcomputers.com.sa/point-of-sales">Point Of Sales</a><a href="https://arabcomputers.com.sa/contact/">Contact Us</a><a href="https://arabcomputers.com.sa/dpp/">DPP</a></div><div class="footer-col"><h3>Products</h3><a href="#">iPhone</a><a href="#">Mac</a><a href="#">iPad</a><a href="#">iPod</a><a href="#">Apple TV</a><a href="#">Apple Watch</a></div><div class="footer-col"><h3>Information</h3><a href="#">Learn How</a><a href="https://arabcomputers.sa/apple-authorised-service-provider/">Service Providers</a><a href="https://arabcomputers.sa/terms-and-conditions/">Terms and condition</a><h3>Contact us</h3><a href="https://ac-care.com.sa">Visit AC-Care</a><a href="https://arabcomputers.com.sa/point-of-sales/">Point of sales</a><p>sales@arabcomputers.com.sa</p></div></div><div class="copyright">© Arab Computers 2022. All Rights Reserved</div><a class="top" href="#">Back to Top</a></footer>
 
-        <!-- قسم التحذير (خلفية شفافة) -->
-        <div class="warning-message">
-            <p class="warning-text-bold">
-                نحذر عملائنا الكرام من وجود ملصق ضمان مزور يحتوي على رمز إستجابة سريع يوجه المستخدمين لصفحة إلكترونية مزورة تشبه هذه الصفحة.<br>
-                يجب أن يكون عنوان الصفحة يتبع لعنوان موقعنا الرسمي:
-                <span class="warning-url"><a href="https://arabcomputers.com.sa/" style="color: #000000; text-decoration: none;">arabcomputers.com.sa/</a></span>
-            </p>
-            <p class="warning-text-normal">
-                <span class="notice-title">Important Notice to Our Valued Customers:</span>
-                We would like to alert you to the presence of counterfeit warranty stickers featuring a QR code that directs users to a fraudulent website designed to imitate the official Arab Computers website.<br>
-            </p>
-        </div>
-    </div> <!-- closing .container -->
-
-    <!-- الأزرار الثابتة السفلية -->
-    <div class="bottom-buttons">
-        <button class="menu-button">☰</button>
-        <button class="home-button" onclick="window.location.href='https://arabcomputers.com.sa/'">
-            <svg class="home-icon" viewBox="0 0 24 24">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-        </button>
-    </div>  
-
-    <!-- الحاشية السفلية (خلفية رمادية #f4f4f9) -->
-    <div class="links">
-        <div class="left-section">
-            <div>
-                <img src="https://i.postimg.cc/SKC7Wqhm/Screenshot-com-android-chrome.png" alt="بانر الموقع" style="max-width: 250px; margin-bottom: 20px;">
-            </div>
-        </div>
-        <div class="links-section">
-            <h2>Useful Links</h2>
-            <div class="links-grid">
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/">Home</a></div>
-                    <div class="link-right"><strong><a href="https://arabcomputers.com.sa/dpp/">DPP</a></strong></div>
-                </div>
-                <div class="link-row"><div class="link-left"><a href="https://arabcomputers.com.sa/point-of-sales/">Point Of Sales</a></div></div>
-                <div class="link-row"><div class="link-left"><a href="https://arabcomputers.com.sa/contact/">Contact Us</a></div></div>
-            </div>
-        </div>
-        <div class="links-section">
-            <h2>Products</h2>
-            <div class="links-grid">
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/product-category/iphone/">iPhone</a></div>
-                    <div class="link-right"><a href="https://arabcomputers.com.sa/product-category/ipad/">iPad</a></div>
-                </div>
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/product-category/mac/">Mac</a></div>
-                    <div class="link-right"><a href="https://arabcomputers.com.sa/product-category/apple-tv/">Apple TV</a></div>
-                </div>
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/product-category/ipod/">iPod</a></div>
-                    <div class="link-right"><a href="https://arabcomputers.com.sa/product-category/apple-watch/">Apple Watch</a></div>
-                </div>
-            </div>
-        </div>
-        <div class="links-section">
-            <h2>Information</h2>
-            <div class="links-grid">
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/apple-authorised-service-provider/">Learn How</a></div>
-                    <div class="link-right"><a href="https://arabcomputers.com.sa/terms-and-conditions/">Terms and condition</a></div>
-                </div>
-                <div class="link-row">
-                    <div class="link-left"><a href="https://arabcomputers.com.sa/apple-authorised-service-provider/">Service Providers</a></div>
-                    <div class="link-right"><a href="https://arabcomputers.com.sa/terms-and-conditions/">Condition</a></div>
-                </div>
-            </div>
-        </div>
-        <div class="links-section">
-            <h2>Support and Sales</h2>
-            <div class="contact-info">
-                <p><strong>For Maintenance:</strong></p>
-                <p><a href="https://ac-care.com.sa/">Visit AC-Care</a></p>
-                <p><strong>For Individual Sales:</strong></p>
-                <p><a href="https://arabcomputers.com.sa/point-of-sales/">Point of Sales</a></p>
-                <p><strong>For corporate or channels sales:</strong></p>
-                <p><a href="mailto:sales@arabcomputers.com.sa">sales@arabcomputers.com.sa</a></p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const SUPABASE_URL = 'https://zihywniznqjfhczotshe.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_mGZlZxplHYI3nawbF8xH7A_bt016_e-';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        async function validateForm(event) {
-            event.preventDefault();
-            const input = document.getElementById("numberInput").value.trim().toUpperCase();
-            const resultElement = document.getElementById("result");
-            const button = document.getElementById("checkBtn");
-            if (!input) return;
-            button.disabled = true;
-            button.classList.add('pressed');
-            resultElement.textContent = "Checking... جاري التحقق...";
-            resultElement.className = '';
-            try {
-                const { data, error } = await _supabase
-                    .from('verification_codes')
-                    .select('*')
-                    .eq('code', input)
-                    .single();
-                if (error || !data) {
-                    resultElement.textContent = "Code not found ❌ هذا الرمز غير موجود !";
-                    resultElement.className = 'error';
-                } else if (data.is_used) {
-                    resultElement.textContent = "This code has already been used ❌ تم استخدام هذا الرمز مسبقاً !";
-                    resultElement.className = 'error';
-                } else {
-                    const { error: updateError } = await _supabase
-                        .from('verification_codes')
-                        .update({ is_used: true })
-                        .eq('id', data.id);
-                    if (updateError) throw updateError;
-                    resultElement.textContent = "The code is correct ✅ هذا الرمز صحيح";
-                    resultElement.className = 'success';
-                }
-            } catch (err) {
-                console.error(err);
-                resultElement.textContent = "Error ❌ حدث خطأ في الاتصال";
-                resultElement.className = 'error';
-            } finally {
-                button.disabled = false;
-                button.classList.remove('pressed');
-            }
-        }
-        document.getElementById('numberInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') validateForm(e);
-        });
-    </script>
+<style id="qr-styles">#qr-overlay{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,.62);padding:16px}.qr-dialog{position:relative;width:min(420px,100%);background:#fff;border-radius:12px;padding:22px;text-align:center;direction:rtl}.qr-dialog h3{margin:0 0 12px}.qr-dialog p{font-size:12px;color:#666;margin:12px 0 0}.qr-close{position:absolute;top:5px;left:10px;border:0;background:transparent;color:#555;font-size:28px;cursor:pointer}.qr-dialog #qr-reader{width:100%;direction:ltr}.qr-dialog #qr-reader__dashboard_section_csr button{background:#b58a1e;color:#fff;border:0;border-radius:5px;padding:7px 12px;cursor:pointer}</style>
+<script>
+const SUPABASE_URL = 'https://zihywniznqjfhczotshe.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mGZlZxplHYI3nawbF8xH7A_bt016_e-';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const form = document.querySelector('#checker');
+const input = document.querySelector('#serial');
+const status = document.querySelector('#status');
+const check = form.querySelector('.check');
+function normalizeCode(value) { return String(value || '').trim().toUpperCase().replace(/[\s-]/g, ''); }
+async function claimCode(code) {
+  const { data, error } = await db.from('verification_codes').select('id,is_used').eq('code', code).maybeSingle();
+  if (error) throw error;
+  if (!data) return 'invalid';
+  if (data.is_used) return 'used';
+  const { data: claimed, error: claimError } = await db.from('verification_codes').update({ is_used: true }).eq('id', data.id).eq('is_used', false).select('id').maybeSingle();
+  if (claimError) throw claimError;
+  return claimed ? 'valid' : 'used';
+}
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const code = normalizeCode(input.value);
+  status.className = 'status';
+  if (!code) { status.classList.add('error'); status.textContent = 'Please enter the sticker number.'; input.focus(); return; }
+  check.disabled = true; status.textContent = 'Checking…';
+  try {
+    const result = await claimCode(code);
+    status.className = 'status ' + (result === 'valid' ? 'success' : 'error');
+    status.textContent = result === 'valid' ? 'The code is correct ✅ هذا الرمز صحيح' : result === 'used' ? 'This code has already been used ❌ تم استخدام هذا الرمز مسبقاً !' : 'Code not found ❌ هذا الرمز غير موجود !';
+  } catch (error) {
+    console.error('Database verification error:', error);
+    status.className = 'status error';
+    status.textContent = 'Error ❌ حدث خطأ في الاتصال بقاعدة البيانات';
+  } finally { check.disabled = false; }
+});
+</script>
 </body>
-</html> 
+</html>
